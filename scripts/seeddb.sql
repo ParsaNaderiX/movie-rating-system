@@ -15,7 +15,7 @@ INSERT INTO genres (id, name, description) VALUES
   (3, 'Comedy', 'Humorous films');
 
 -- Movies
-INSERT INTO movies (id, title, director_id, release_year, cast) VALUES
+INSERT INTO movies (id, title, director_id, release_year, "cast") VALUES
   (1, 'Inception', 1, 2010, 'Leonardo DiCaprio, Joseph Gordon-Levitt'),
   (2, 'Little Women', 2, 2019, 'Saoirse Ronan, Emma Watson'),
   (3, 'Interstellar', 1, 2014, 'Matthew McConaughey, Anne Hathaway');

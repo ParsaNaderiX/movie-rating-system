@@ -3,7 +3,7 @@
 Set `DATABASE_URL` in `.env` (or your shell) before running Alembic.
 
 ```bash
-alembic upgrade head
+poetry run alembic upgrade head
 ```
 
 ## Seeding the database (development)
@@ -25,7 +25,7 @@ alembic upgrade head
 2. Run migrations:
 
 	```bash
-	alembic upgrade head
+	poetry run alembic upgrade head
 	```
 
 3. Load the seed SQL file with `psql` (or any Postgres client):
@@ -36,18 +36,25 @@ alembic upgrade head
 
 	- On PowerShell you can use the same `psql` command once `$env:DATABASE_URL` is set.
 
+If `psql` is not available on your machine (for example on some Windows setups), you can run the included Python seeder instead:
+
+```bash
+poetry add --dev psycopg2-binary
+poetry run python scripts/run_seed.py
+```
+
 4. Install the DB client dependency for the lightweight check script (optional but recommended):
 
 	```bash
-	pip install psycopg[binary]
+	poetry add --dev psycopg[binary]
 	# or
-	pip install psycopg2-binary
+	poetry add --dev psycopg2-binary
 	```
 
 5. Run the quick seed check which prints counts per table:
 
 	```bash
-	python scripts/seed_check.py
+	poetry run python scripts/seed_check.py
 	```
 
 This seed setup is intentionally minimal and meant for development/grading purposes. The `scripts/seeddb.sql` file inserts sample directors, genres, movies, movie_genres, and movie_ratings. The `scripts/seed_check.py` script connects using `DATABASE_URL` and prints row counts for those tables.

@@ -1,15 +1,19 @@
 #!/usr/bin/env python3
-"""Simple seed validation script.
+"""Run `scripts/seeddb.sql` against the DATABASE_URL without needing `psql`.
 
-Connects to the DB defined by `DATABASE_URL` and prints counts for key tables.
-Attempts to use `psycopg` (psycopg3) and falls back to `psycopg2`.
+This script attempts to use `psycopg` (psycopg3) and falls back to `psycopg2`.
+It reads the SQL file, splits into simple statements, and executes them.
+This is intended as a convenience for graders or devs on systems without `psql`.
 """
 import os
 import sys
 
+HERE = os.path.dirname(__file__)
+SQL_PATH = os.path.join(HERE, "seeddb.sql")
+
 DB_URL = os.environ.get("DATABASE_URL")
 if not DB_URL:
-    print("Please set the DATABASE_URL environment variable (e.g. export DATABASE_URL=postgresql://user:pass@host/db)")
+    print("Please set the DATABASE_URL environment variable before running this script.")
     sys.exit(1)
 
 
@@ -47,24 +51,41 @@ except Exception:
         print("Please install either psycopg (pip install psycopg[binary]) or psycopg2-binary")
         sys.exit(1)
 
-TABLES = ["directors", "genres", "movies", "movie_genres", "movie_ratings"]
+
+def load_sql(path: str) -> str:
+    with open(path, "r", encoding="utf-8") as fh:
+        return fh.read()
 
 
 def main() -> int:
+    if not os.path.exists(SQL_PATH):
+        print(f"SQL file not found: {SQL_PATH}")
+        return 2
+
+    sql = load_sql(SQL_PATH)
+
     conn = None
     try:
         conn = _connect(DB_URL)
+        # allow executing BEGIN/COMMIT inside the SQL file
+        try:
+            conn.autocommit = True
+        except Exception:
+            pass
+
         cur = conn.cursor()
-        print("Connected to database; counting rows:")
-        for t in TABLES:
-            cur.execute(f"SELECT COUNT(*) FROM {t};")
-            row = cur.fetchone()
-            n = row[0] if row else 0
-            print(f"- {t}: {n}")
+
+        # Very small/simple splitter for this project's seed SQL.
+        # This is not a full SQL parser but is sufficient for our simple seed file.
+        statements = [s.strip() for s in sql.split(";") if s.strip()]
+        for stmt in statements:
+            cur.execute(stmt + ";")
+
+        print("Seed SQL applied successfully.")
         return 0
     except Exception as exc:
-        print("Error while checking seed data:", exc)
-        return 2
+        print("Error applying seed SQL:", exc)
+        return 3
     finally:
         if conn:
             try:
