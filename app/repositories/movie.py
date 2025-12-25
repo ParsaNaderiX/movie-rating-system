@@ -1,8 +1,9 @@
 from typing import Optional
 
 from sqlalchemy import func, select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload, selectinload
 
+from app.models.genre import Genre
 from app.models.movie import Movie
 from app.models.movie_rating import MovieRating
 
@@ -169,3 +170,17 @@ class MovieRepository:
             }
 
         return aggregates
+
+    def get_movie_with_relations(self, movie_id: int) -> Optional[Movie]:
+        query = (
+            select(Movie)
+            .options(joinedload(Movie.director), selectinload(Movie.genres))
+            .where(Movie.id == movie_id)
+        )
+        return self.db.execute(query).scalars().first()
+
+    def get_genres_by_ids(self, genre_ids: list[int]) -> list[Genre]:
+        if not genre_ids:
+            return []
+        query = select(Genre).where(Genre.id.in_(genre_ids))
+        return self.db.execute(query).scalars().all()

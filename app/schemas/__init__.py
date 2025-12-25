@@ -1,5 +1,5 @@
 from app.schemas.common import ErrorDetail, FailureResponse, SuccessResponse
-from app.schemas.movie import MovieDetail, MovieListItem, RatingAggregate
+from app.schemas.movie import MovieDetail, MovieListItem, MovieUpdate, RatingAggregate
 
 __all__ = [
     "ErrorDetail",
@@ -7,5 +7,6 @@ __all__ = [
     "SuccessResponse",
     "MovieListItem",
     "MovieDetail",
+    "MovieUpdate",
     "RatingAggregate",
 ]

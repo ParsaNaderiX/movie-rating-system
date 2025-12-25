@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class RatingAggregate(BaseModel):
@@ -8,6 +8,19 @@ class RatingAggregate(BaseModel):
 
     avg_rating: Optional[float] = None
     rating_count: int
+
+
+class DirectorInfo(BaseModel):
+    id: int
+    name: str
+    birth_year: Optional[int] = None
+    description: Optional[str] = None
+
+
+class GenreInfo(BaseModel):
+    id: int
+    name: str
+    description: Optional[str] = None
 
 
 class MovieListItem(BaseModel):
@@ -32,3 +45,12 @@ class MovieDetail(BaseModel):
     cast: Optional[str] = None
     avg_rating: Optional[float] = None
     rating_count: int
+    director: DirectorInfo
+    genres: list[GenreInfo] = Field(default_factory=list)
+
+
+class MovieUpdate(BaseModel):
+    title: Optional[str] = None
+    release_year: Optional[int] = None
+    cast: Optional[str] = None
+    genres: Optional[list[int]] = None
