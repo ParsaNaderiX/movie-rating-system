@@ -118,3 +118,14 @@ class MovieService:
             raise
 
         return self._build_movie_detail(movie)
+
+    def delete_movie(self, movie_id: int) -> None:
+        movie = self.repository.get_movie_by_id(movie_id)
+        if not movie:
+            raise NotFoundError("Movie not found")
+        try:
+            self.repository.delete_movie(movie_id)
+            self.repository.db.commit()
+        except Exception:
+            self.repository.db.rollback()
+            raise

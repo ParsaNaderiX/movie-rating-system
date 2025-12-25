@@ -1,10 +1,10 @@
 from typing import Optional
 
-from sqlalchemy import func, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session, joinedload, selectinload
 
 from app.models.genre import Genre
-from app.models.movie import Movie
+from app.models.movie import Movie, movie_genres
 from app.models.movie_rating import MovieRating
 
 
@@ -184,3 +184,18 @@ class MovieRepository:
             return []
         query = select(Genre).where(Genre.id.in_(genre_ids))
         return self.db.execute(query).scalars().all()
+
+    def get_movie_by_id(self, movie_id: int) -> Optional[Movie]:
+        query = select(Movie).where(Movie.id == movie_id)
+        return self.db.execute(query).scalars().first()
+
+    def delete_movie(self, movie_id: int) -> None:
+        self.db.execute(
+            delete(movie_genres).where(movie_genres.c.movie_id == movie_id),
+        )
+        self.db.execute(
+            delete(MovieRating).where(MovieRating.movie_id == movie_id),
+        )
+        self.db.execute(
+            delete(Movie).where(Movie.id == movie_id),
+        )

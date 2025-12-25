@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 
 from app.db.database import get_db
 from app.schemas.common import SuccessResponse
@@ -40,3 +40,13 @@ def update_movie(movie_id: int, payload: MovieUpdate, db: Session = Depends(get_
     service = MovieService(db)
     movie = service.update_movie(movie_id, payload)
     return SuccessResponse(data=MovieDetail(**movie))
+
+
+@router.delete("/{movie_id}", status_code=204)
+def delete_movie(movie_id: int, db: Session = Depends(get_db)) -> Response:
+    """
+    Delete a movie and its related ratings/genres.
+    """
+    service = MovieService(db)
+    service.delete_movie(movie_id)
+    return Response(status_code=204)
