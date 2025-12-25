@@ -1,6 +1,6 @@
 from typing import Optional
 
-from sqlalchemy import delete, func, select
+from sqlalchemy import Float, delete, func, select
 from sqlalchemy.orm import Session, joinedload, selectinload
 
 from app.models.genre import Genre
@@ -29,7 +29,7 @@ class MovieRepository:
             Movie.director_id,
             Movie.release_year,
             Movie.cast,
-            func.avg(MovieRating.score).cast(float).label("avg_rating"),
+            func.avg(MovieRating.score).cast(Float).label("avg_rating"),
             func.count(MovieRating.id).label("rating_count"),
         ).outerjoin(
             MovieRating,
@@ -78,7 +78,7 @@ class MovieRepository:
             Movie.director_id,
             Movie.release_year,
             Movie.cast,
-            func.avg(MovieRating.score).cast(float).label("avg_rating"),
+            func.avg(MovieRating.score).cast(Float).label("avg_rating"),
             func.count(MovieRating.id).label("rating_count"),
         ).where(
             Movie.id == movie_id,
@@ -121,7 +121,7 @@ class MovieRepository:
             Dict with keys: avg_rating (float or None), rating_count (int)
         """
         query = select(
-            func.avg(MovieRating.score).cast(float).label("avg_rating"),
+            func.avg(MovieRating.score).cast(Float).label("avg_rating"),
             func.count(MovieRating.id).label("rating_count"),
         ).where(
             MovieRating.movie_id == movie_id,
@@ -152,7 +152,7 @@ class MovieRepository:
 
         query = select(
             MovieRating.movie_id,
-            func.avg(MovieRating.score).cast(float).label("avg_rating"),
+            func.avg(MovieRating.score).cast(Float).label("avg_rating"),
             func.count(MovieRating.id).label("rating_count"),
         ).where(
             MovieRating.movie_id.in_(movie_ids),
