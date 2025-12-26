@@ -92,6 +92,13 @@ class MovieListItemOut(BaseModel):
         return value
 
 
+class MovieListPageOut(BaseModel):
+    page: int
+    page_size: int
+    total_items: int
+    items: list[MovieListItemOut] = Field(default_factory=list)
+
+
 class MovieDetailOut(BaseModel):
     id: int
     title: str
