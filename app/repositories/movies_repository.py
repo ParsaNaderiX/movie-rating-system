@@ -3,6 +3,7 @@ from typing import Optional
 from sqlalchemy import Float, func, select
 from sqlalchemy.orm import Session, joinedload, selectinload
 
+from app.models.director import Director
 from app.models.genre import Genre
 from app.models.movie import Movie
 from app.models.movie_rating import MovieRating
@@ -101,3 +102,33 @@ class MoviesRepository:
             "average_rating": aggregate_row.average_rating if aggregate_row else None,
             "ratings_count": aggregate_row.ratings_count if aggregate_row else 0,
         }
+
+    def get_director_by_id(self, director_id: int) -> Optional[Director]:
+        query = select(Director).where(Director.id == director_id)
+        return self.db.execute(query).scalars().first()
+
+    def get_genres_by_ids(self, genre_ids: list[int]) -> list[Genre]:
+        if not genre_ids:
+            return []
+        query = select(Genre).where(Genre.id.in_(genre_ids))
+        return self.db.execute(query).scalars().all()
+
+    def create_movie(
+        self,
+        *,
+        title: str,
+        director_id: int,
+        release_year: int,
+        cast: Optional[str],
+        genres: list[Genre],
+    ) -> Movie:
+        movie = Movie(
+            title=title,
+            director_id=director_id,
+            release_year=release_year,
+            cast=cast,
+        )
+        movie.genres = genres
+        self.db.add(movie)
+        self.db.flush()
+        return movie
