@@ -1,5 +1,18 @@
 from app.schemas.common import ErrorDetail, FailureResponse, SuccessResponse
-from app.schemas.movie import MovieDetail, MovieListItem, MovieUpdate, RatingAggregate
+from app.schemas.movie import (
+    DirectorOut,
+    MovieCreateIn,
+    MovieDetail,
+    MovieDetailOut,
+    MovieListItem,
+    MovieListItemOut,
+    MovieListPageOut,
+    MovieUpdate,
+    MovieUpdateIn,
+    RatingAggregate,
+    RatingCreateIn,
+    RatingOut,
+)
 
 __all__ = [
     "ErrorDetail",
@@ -9,4 +22,12 @@ __all__ = [
     "MovieDetail",
     "MovieUpdate",
     "RatingAggregate",
+    "DirectorOut",
+    "MovieListItemOut",
+    "MovieListPageOut",
+    "MovieDetailOut",
+    "MovieCreateIn",
+    "MovieUpdateIn",
+    "RatingCreateIn",
+    "RatingOut",
 ]
