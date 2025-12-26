@@ -2,6 +2,7 @@ from typing import Optional
 
 from sqlalchemy.orm import Session
 
+from app.exceptions import NotFoundError
 from app.repositories.movies_repository import MoviesRepository
 
 
@@ -51,4 +52,25 @@ class MoviesService:
             "page_size": page_size,
             "total_items": total_items,
             "items": items,
+        }
+
+    def get_movie_detail(self, movie_id: int) -> dict:
+        movie, aggregate = self.repository.get_movie_detail(movie_id)
+        if not movie:
+            raise NotFoundError("Movie not found")
+
+        return {
+            "id": movie.id,
+            "title": movie.title,
+            "release_year": movie.release_year,
+            "director": {
+                "id": movie.director.id,
+                "name": movie.director.name,
+                "birth_year": movie.director.birth_year,
+                "description": movie.director.description,
+            },
+            "genres": [genre_item.name for genre_item in movie.genres],
+            "cast": movie.cast,
+            "average_rating": aggregate["average_rating"],
+            "ratings_count": aggregate["ratings_count"],
         }

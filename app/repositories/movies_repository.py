@@ -78,3 +78,26 @@ class MoviesRepository:
         movie_by_id = {movie.id: movie for movie in movies}
         ordered_movies = [movie_by_id[movie_id] for movie_id in movie_ids if movie_id in movie_by_id]
         return total_items, ordered_movies, aggregates_map
+
+    def get_movie_detail(self, movie_id: int) -> tuple[Optional[Movie], dict]:
+        movie_query = (
+            select(Movie)
+            .options(joinedload(Movie.director), selectinload(Movie.genres))
+            .where(Movie.id == movie_id)
+        )
+        movie = self.db.execute(movie_query).scalars().first()
+        if not movie:
+            return None, {"average_rating": None, "ratings_count": 0}
+
+        aggregate_query = (
+            select(
+                func.avg(MovieRating.score).cast(Float).label("average_rating"),
+                func.count(MovieRating.id).label("ratings_count"),
+            )
+            .where(MovieRating.movie_id == movie_id)
+        )
+        aggregate_row = self.db.execute(aggregate_query).first()
+        return movie, {
+            "average_rating": aggregate_row.average_rating if aggregate_row else None,
+            "ratings_count": aggregate_row.ratings_count if aggregate_row else 0,
+        }
