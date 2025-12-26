@@ -107,6 +107,10 @@ class MoviesRepository:
         query = select(Director).where(Director.id == director_id)
         return self.db.execute(query).scalars().first()
 
+    def get_movie_by_id(self, movie_id: int) -> Optional[Movie]:
+        query = select(Movie).where(Movie.id == movie_id)
+        return self.db.execute(query).scalars().first()
+
     def get_genres_by_ids(self, genre_ids: list[int]) -> list[Genre]:
         if not genre_ids:
             return []
@@ -132,3 +136,9 @@ class MoviesRepository:
         self.db.add(movie)
         self.db.flush()
         return movie
+
+    def create_rating(self, *, movie_id: int, score: int) -> MovieRating:
+        rating = MovieRating(movie_id=movie_id, score=score)
+        self.db.add(rating)
+        self.db.flush()
+        return rating

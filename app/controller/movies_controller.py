@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.db.database import get_db
 from app.schemas.common import SuccessResponse
-from app.schemas.movie import MovieCreateIn, MovieDetailOut, MovieListPageOut
+from app.schemas.movie import MovieCreateIn, MovieDetailOut, MovieListPageOut, RatingCreateIn, RatingOut
 from app.services.movies_service import MoviesService
 
 router = APIRouter(prefix="/api/v1/movies", tags=["movies"])
@@ -43,3 +43,10 @@ def create_movie(payload: MovieCreateIn, db: Session = Depends(get_db)):
     service = MoviesService(db)
     movie = service.create_movie(payload)
     return SuccessResponse(data=movie)
+
+
+@router.post("/{movie_id}/ratings", response_model=SuccessResponse[RatingOut], status_code=201)
+def create_rating(movie_id: int, payload: RatingCreateIn, db: Session = Depends(get_db)):
+    service = MoviesService(db)
+    rating = service.create_rating(movie_id, payload)
+    return SuccessResponse(data=rating)

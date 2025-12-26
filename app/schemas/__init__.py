@@ -11,6 +11,7 @@ from app.schemas.movie import (
     MovieUpdateIn,
     RatingAggregate,
     RatingCreateIn,
+    RatingOut,
 )
 
 __all__ = [
@@ -28,4 +29,5 @@ __all__ = [
     "MovieCreateIn",
     "MovieUpdateIn",
     "RatingCreateIn",
+    "RatingOut",
 ]

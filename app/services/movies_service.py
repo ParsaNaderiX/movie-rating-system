@@ -3,7 +3,7 @@ from typing import Optional
 from sqlalchemy.orm import Session
 
 from app.exceptions import NotFoundError, ValidationError
-from app.schemas.movie import MovieCreateIn
+from app.schemas.movie import MovieCreateIn, RatingCreateIn
 from app.repositories.movies_repository import MoviesRepository
 
 
@@ -119,4 +119,28 @@ class MoviesService:
             "cast": movie_detail.cast,
             "average_rating": aggregate["average_rating"],
             "ratings_count": aggregate["ratings_count"],
+        }
+
+    def create_rating(self, movie_id: int, payload: RatingCreateIn) -> dict:
+        movie = self.repository.get_movie_by_id(movie_id)
+        if not movie:
+            raise NotFoundError("Movie not found")
+        if payload.score < 1 or payload.score > 10:
+            raise ValidationError("Score must be between 1 and 10")
+
+        try:
+            rating = self.repository.create_rating(
+                movie_id=movie_id,
+                score=payload.score,
+            )
+            self.repository.db.commit()
+        except Exception:
+            self.repository.db.rollback()
+            raise
+
+        return {
+            "id": rating.id,
+            "movie_id": rating.movie_id,
+            "score": rating.score,
+            "created_at": rating.created_at,
         }
