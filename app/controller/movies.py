@@ -1,14 +1,15 @@
 from typing import Optional
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Response
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
 from app.schemas.common import SuccessResponse
-from app.schemas.movie import MovieCreateIn, MovieDetailOut, MovieListPageOut, RatingCreateIn, RatingOut
+from app.schemas.movie import MovieCreateIn, MovieDetailOut, MovieListPageOut, MovieUpdate, RatingCreateIn, RatingOut
+from app.services.movie import MovieService
 from app.services.movies_service import MoviesService
 
-router = APIRouter(prefix="/api/v1/movies", tags=["movies"])
+router = APIRouter(prefix="/api/v1/movies", tags=["Movies"])
 
 
 @router.get("", response_model=SuccessResponse[MovieListPageOut])
@@ -36,6 +37,20 @@ def get_movie(movie_id: int, db: Session = Depends(get_db)):
     service = MoviesService(db)
     payload = service.get_movie_detail(movie_id)
     return SuccessResponse(data=payload)
+
+
+@router.put("/{movie_id}", response_model=SuccessResponse[MovieDetailOut])
+def update_movie(movie_id: int, payload: MovieUpdate, db: Session = Depends(get_db)):
+    service = MovieService(db)
+    movie = service.update_movie(movie_id, payload)
+    return SuccessResponse(data=movie)
+
+
+@router.delete("/{movie_id}", status_code=204)
+def delete_movie(movie_id: int, db: Session = Depends(get_db)) -> Response:
+    service = MovieService(db)
+    service.delete_movie(movie_id)
+    return Response(status_code=204)
 
 
 @router.post("", response_model=SuccessResponse[MovieDetailOut], status_code=201)
