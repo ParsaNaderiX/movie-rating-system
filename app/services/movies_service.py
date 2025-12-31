@@ -43,8 +43,8 @@ class MoviesService:
                         "name": movie.director.name,
                     },
                     "genres": [genre_item.name for genre_item in movie.genres],
-                    "average_rating": rating["average_rating"],
-                    "ratings_count": rating["ratings_count"],
+                    "avg_rating": rating["average_rating"],
+                    "rating_count": rating["ratings_count"],
                 }
             )
 
@@ -72,8 +72,8 @@ class MoviesService:
             },
             "genres": [genre_item.name for genre_item in movie.genres],
             "cast": movie.cast,
-            "average_rating": aggregate["average_rating"],
-            "ratings_count": aggregate["ratings_count"],
+            "avg_rating": aggregate["average_rating"],
+            "rating_count": aggregate["ratings_count"],
         }
 
     def create_movie(self, payload: MovieCreateIn) -> dict:
@@ -117,8 +117,8 @@ class MoviesService:
             },
             "genres": [genre_item.name for genre_item in movie_detail.genres],
             "cast": movie_detail.cast,
-            "average_rating": aggregate["average_rating"],
-            "ratings_count": aggregate["ratings_count"],
+            "avg_rating": aggregate["average_rating"],
+            "rating_count": aggregate["ratings_count"],
         }
 
     def create_rating(self, movie_id: int, payload: RatingCreateIn) -> dict:
