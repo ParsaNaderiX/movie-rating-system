@@ -12,7 +12,7 @@ from app.services.movie import MovieService
 from app.services.movies_service import MoviesService
 
 router = APIRouter(prefix="/api/v1/movies", tags=["Movies"])
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("movie_rating")
 
 
 @router.get("", response_model=SuccessResponse[MovieListPageOut])
@@ -95,7 +95,7 @@ def create_rating(movie_id: int, payload: RatingCreateIn, db: Session = Depends(
     route = f"/api/v1/movies/{movie_id}/ratings"
     logger.info(
         "Rating movie",
-        extra={"movie_id": movie_id, "score": payload.score, "route": route},
+        extra={"movie_id": movie_id, "rating": payload.score, "route": route},
     )
     service = MoviesService(db)
     try:
@@ -103,18 +103,18 @@ def create_rating(movie_id: int, payload: RatingCreateIn, db: Session = Depends(
     except ValidationError:
         logger.warning(
             "Invalid rating value",
-            extra={"movie_id": movie_id, "score": payload.score, "route": route},
+            extra={"movie_id": movie_id, "rating": payload.score, "route": route},
         )
         raise
     except Exception:
         logger.error(
             "Failed to save rating",
             exc_info=True,
-            extra={"movie_id": movie_id, "score": payload.score},
+            extra={"movie_id": movie_id, "rating": payload.score, "route": route},
         )
         raise
     logger.info(
         "Rating saved successfully",
-        extra={"movie_id": movie_id, "score": payload.score},
+        extra={"movie_id": movie_id, "rating": payload.score},
     )
     return SuccessResponse(data=rating)
