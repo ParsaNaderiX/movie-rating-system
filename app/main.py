@@ -2,7 +2,9 @@ from fastapi import FastAPI
 
 from app.exceptions import register_exception_handlers
 from app.controller import movies_router
+from app.logging_config import configure_logging
 
+configure_logging()
 app = FastAPI(title="Movie-Rating-System")
 register_exception_handlers(app)
 app.include_router(movies_router)
