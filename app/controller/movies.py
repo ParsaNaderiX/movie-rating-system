@@ -1,3 +1,4 @@
+import logging
 from typing import Optional
 
 from fastapi import APIRouter, Depends, Query, Response
@@ -10,6 +11,7 @@ from app.services.movie import MovieService
 from app.services.movies_service import MoviesService
 
 router = APIRouter(prefix="/api/v1/movies", tags=["Movies"])
+logger = logging.getLogger(__name__)
 
 
 @router.get("", response_model=SuccessResponse[MovieListPageOut])
@@ -21,15 +23,42 @@ def list_movies(
     genre: Optional[str] = None,
     db: Session = Depends(get_db),
 ):
-    service = MoviesService(db)
-    payload = service.list_movies(
-        page=page,
-        page_size=page_size,
-        title=title,
-        release_year=release_year,
-        genre=genre,
-    )
-    return SuccessResponse(data=payload)
+    route = "/api/v1/movies"
+    params = {
+        "page": page,
+        "page_size": page_size,
+        "title": title,
+        "release_year": release_year,
+        "genre": genre,
+    }
+    logger.info("Listing movies", extra={"route": route, **params})
+    try:
+        service = MoviesService(db)
+        payload = service.list_movies(
+            page=page,
+            page_size=page_size,
+            title=title,
+            release_year=release_year,
+            genre=genre,
+        )
+        logger.info(
+            "Movies listed successfully",
+            extra={
+                "route": route,
+                "total_items": payload.get("total_items"),
+                "returned_count": len(payload.get("items", [])),
+                "page": page,
+                "page_size": page_size,
+            },
+        )
+        return SuccessResponse(data=payload)
+    except Exception:
+        logger.error(
+            "Failed to list movies",
+            exc_info=True,
+            extra={"route": route, **params},
+        )
+        raise
 
 
 @router.get("/{movie_id}", response_model=SuccessResponse[MovieDetailOut])
