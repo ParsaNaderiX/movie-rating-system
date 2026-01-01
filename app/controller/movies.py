@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.schemas.common import SuccessResponse
 from app.schemas.movie import MovieCreateIn, MovieDetailOut, MovieListPageOut, MovieUpdate, RatingCreateIn, RatingOut
+from app.exceptions import ValidationError
 from app.services.movie import MovieService
 from app.services.movies_service import MoviesService
 
@@ -91,6 +92,29 @@ def create_movie(payload: MovieCreateIn, db: Session = Depends(get_db)):
 
 @router.post("/{movie_id}/ratings", response_model=SuccessResponse[RatingOut], status_code=201)
 def create_rating(movie_id: int, payload: RatingCreateIn, db: Session = Depends(get_db)):
+    route = f"/api/v1/movies/{movie_id}/ratings"
+    logger.info(
+        "Rating movie",
+        extra={"movie_id": movie_id, "score": payload.score, "route": route},
+    )
     service = MoviesService(db)
-    rating = service.create_rating(movie_id, payload)
+    try:
+        rating = service.create_rating(movie_id, payload)
+    except ValidationError:
+        logger.warning(
+            "Invalid rating value",
+            extra={"movie_id": movie_id, "score": payload.score, "route": route},
+        )
+        raise
+    except Exception:
+        logger.error(
+            "Failed to save rating",
+            exc_info=True,
+            extra={"movie_id": movie_id, "score": payload.score},
+        )
+        raise
+    logger.info(
+        "Rating saved successfully",
+        extra={"movie_id": movie_id, "score": payload.score},
+    )
     return SuccessResponse(data=rating)
